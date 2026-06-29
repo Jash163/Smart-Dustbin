@@ -30,7 +30,14 @@
       "lastIrState": false,
       "lastThrowAt": null,
       "lastTelemetryAt": null,
-      "alerts": [],
+      "alerts": [
+        {
+          "source": "system",
+          "level": "warn",
+          "text": "No telemetry received yet",
+          "ts": 1782713890125
+        }
+      ],
       "activity": []
     },
     "eng": {
@@ -62,7 +69,14 @@
       "lastIrState": false,
       "lastThrowAt": null,
       "lastTelemetryAt": null,
-      "alerts": [],
+      "alerts": [
+        {
+          "source": "system",
+          "level": "warn",
+          "text": "No telemetry received yet",
+          "ts": 1782713890125
+        }
+      ],
       "activity": []
     },
     "cant": {
@@ -94,7 +108,14 @@
       "lastIrState": false,
       "lastThrowAt": null,
       "lastTelemetryAt": null,
-      "alerts": [],
+      "alerts": [
+        {
+          "source": "system",
+          "level": "warn",
+          "text": "No telemetry received yet",
+          "ts": 1782713890125
+        }
+      ],
       "activity": []
     }
   }

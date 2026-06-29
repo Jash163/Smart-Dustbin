@@ -26,3 +26,7 @@ desktop.ini
 build/
 *.hex
 *.bin.elf
+
+# Global Arduino IDE libraries folder (not project dependencies — the
+# firmware only uses the built-in WiFi.h and HTTPClient.h)
+libraries/

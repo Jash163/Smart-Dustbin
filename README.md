@@ -15,7 +15,8 @@ impact stats).
 
 1. The ESP32 reads three ultrasonic distances (paper / plastic / metal) and an
    IR beam that detects when trash passes the inlet.
-2. It sends a telemetry packet to `POST /api/telemetry`.
+2. It sends a telemetry packet to `POST /api/telemetry` every 5 seconds (and
+   immediately whenever the IR state changes).
 3. The backend converts distances into fill percentages, estimates stored mass,
    counts throw events, raises capacity/stale alerts, and logs recent activity.
 4. The dashboard polls `GET /api/dashboard` every 15 seconds and renders live
@@ -26,18 +27,30 @@ impact stats).
 | Path | What it is |
 |------|------------|
 | `firmware/esp32_smart_bin/` | ESP32 firmware (`.ino`) — sensors + WiFi + telemetry |
-| `backend/` | Node.js HTTP backend + dashboard server (no external deps) |
-| `backend/public/index.html` | Live dashboard frontend |
+| `backend/` | Node.js HTTP backend + dashboard server (no external dependencies) |
+| `backend/public/index.html` | Live dashboard frontend (served at `/`) |
 | `backend/src/` | `server.js`, `store.js`, `analytics.js`, `config.js` |
 | `backend/data/state.json` | Persisted runtime state |
-| `Dashboard.codex.html` | Standalone dashboard (works via `file:` too) |
-| `libraries/` | Bundled Arduino libraries needed to compile the firmware |
 
 ## Hardware
 
 - ESP32 development board (built-in WiFi)
-- 3x ultrasonic distance sensors (one per material stream)
+- 3x HC-SR04 ultrasonic distance sensors (one per material stream)
 - 1x IR sensor at the inlet (throw detection)
+
+## Wiring (ESP32 GPIO)
+
+| Signal | Trig | Echo |
+|--------|------|------|
+| Paper ultrasonic | GPIO 5 | GPIO 18 |
+| Plastic ultrasonic | GPIO 19 | GPIO 21 |
+| Metal ultrasonic | GPIO 22 | GPIO 23 |
+| IR sensor (inlet) | GPIO 27 | — |
+
+- The IR pin uses `INPUT_PULLUP` and is treated as **active LOW** (beam blocked = LOW).
+  If your IR module is active HIGH, flip `IR_ACTIVE_STATE` in the firmware.
+- HC-SR04 modules run on 5V; the ESP32 GPIOs are 3.3V — level-shift the ECHO
+  lines (or use a divider) if your board isn't 5V-tolerant. Share a common GND.
 
 ## Run the backend
 
@@ -53,12 +66,14 @@ Then open <http://localhost:8080>.
 
 ## Configure the firmware
 
-Open `firmware/esp32_smart_bin/esp32_smart_bin.ino` and set:
+The firmware needs **no external Arduino libraries** — it uses only the built-in
+`WiFi.h` and `HTTPClient.h` from the ESP32 core. Open
+`firmware/esp32_smart_bin/esp32_smart_bin.ino` and set:
 
 - `WIFI_SSID` and `WIFI_PASSWORD` — your network credentials
 - `BACKEND_URL` — where your backend is reachable (e.g. `http://<server-ip>:8080/api/telemetry`)
-- `BIN_ID` — which bin this controller represents
-- the GPIO pin assignments for your wiring
+- `BIN_ID` — which bin this controller represents (`lib`, `eng`, or `cant`)
+- the GPIO pin assignments above, if your wiring differs
 
 If your bin geometry differs, update the calibration in `backend/src/config.js`
 (`emptyDistanceCm`, `fullDistanceCm`, `capacityKg`, `co2AvoidedPerKg`, `sheetsPerKg`).
@@ -81,9 +96,9 @@ See [`backend/README.md`](backend/README.md) for sample payloads and details.
 
 ## Notes
 
-- The dashboard falls back to `http://localhost:8080` when opened directly as a file.
-- The firmware targets ESP32 because WiFi is built in.
-- Bin locations in `config.js` are sample/demo coordinates — change them to your own deployment sites.
+- Bin locations in `config.js` are sample/demo coordinates — change them to your
+  own deployment sites.
+- Runtime state is persisted to `backend/data/state.json` (committed as a seed).
 
 ## License
 
