@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "bins": {
+    "lib": {
+      "id": "lib",
+      "name": "Library Bin",
+      "site": "SNU Library",
+      "latlng": [
+        28.5248,
+        77.5725
+      ],
+      "fills": {
+        "paper": 0,
+        "plastic": 0,
+        "metal": 0,
+        "others": 0
+      },
+      "distancesCm": {
+        "paper": null,
+        "plastic": null,
+        "metal": null
+      },
+      "estimatedMassKg": {
+        "paper": 0,
+        "plastic": 0,
+        "metal": 0,
+        "others": 0
+      },
+      "throwEvents": 0,
+      "lastIrState": false,
+      "lastThrowAt": null,
+      "lastTelemetryAt": null,
+      "alerts": [],
+      "activity": []
+    },
+    "eng": {
+      "id": "eng",
+      "name": "Engineering Bin",
+      "site": "SNU Block C",
+      "latlng": [
+        28.526,
+        77.5745
+      ],
+      "fills": {
+        "paper": 0,
+        "plastic": 0,
+        "metal": 0,
+        "others": 0
+      },
+      "distancesCm": {
+        "paper": null,
+        "plastic": null,
+        "metal": null
+      },
+      "estimatedMassKg": {
+        "paper": 0,
+        "plastic": 0,
+        "metal": 0,
+        "others": 0
+      },
+      "throwEvents": 0,
+      "lastIrState": false,
+      "lastThrowAt": null,
+      "lastTelemetryAt": null,
+      "alerts": [],
+      "activity": []
+    },
+    "cant": {
+      "id": "cant",
+      "name": "Dining Hall Bin",
+      "site": "Dining Hall 1",
+      "latlng": [
+        28.5238,
+        77.5715
+      ],
+      "fills": {
+        "paper": 0,
+        "plastic": 0,
+        "metal": 0,
+        "others": 0
+      },
+      "distancesCm": {
+        "paper": null,
+        "plastic": null,
+        "metal": null
+      },
+      "estimatedMassKg": {
+        "paper": 0,
+        "plastic": 0,
+        "metal": 0,
+        "others": 0
+      },
+      "throwEvents": 0,
+      "lastIrState": false,
+      "lastThrowAt": null,
+      "lastTelemetryAt": null,
+      "alerts": [],
+      "activity": []
+    }
+  }
+}

@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Smart Segregation - SNU Control Hub</title>
+<style>
+:root{
+  --bg:#0f1115;
+  --panel:#171a21;
+  --text:#e6e9ef;
+  --muted:#9aa4b2;
+  --green:#22c55e;
+  --accent:#22d3ee;
+  --warn:#fbbf24;
+  --danger:#ef4444;
+  --border:#22242e;
+  --radius:12px;
+  --shadow:0 8px 24px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:radial-gradient(800px 400px at 80% -10%,#182032 0%,transparent 60%),var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  background:linear-gradient(180deg,#111317,#0f1115);
+  z-index:30;
+}
+
+.brand{display:flex;align-items:center;gap:12px}
+h1{font-size:18px;margin:0}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.tabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tab{
+  padding:8px 12px;
+  border-radius:10px;
+  background:transparent;
+  border:1px solid transparent;
+  color:var(--muted);
+  cursor:pointer;
+}
+.tab.active{
+  background:linear-gradient(180deg,#151a24,#11151d);
+  color:var(--text);
+  border-color:#262b35;
+  box-shadow:0 6px 20px rgba(0,0,0,.45);
+}
+
+.btn{
+  padding:8px 12px;
+  border-radius:10px;
+  background:#11161c;
+  border:1px solid #222a30;
+  color:#dbe6f7;
+  cursor:pointer;
+  font-size:13px;
+}
+.btn:hover{box-shadow:0 0 0 2px rgba(34,197,94,.25)}
+.btn.danger-btn{border-color:#5c2222;color:#ffb4b4}
+.btn.danger-btn:hover{box-shadow:0 0 0 2px rgba(239,68,68,.25)}
+
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:12px;
+  border:1px solid #1c2d22;
+  background:#0f1612;
+  color:#b8f0cb;
+}
+.status-pill.offline{
+  border-color:#472323;
+  background:#1a1111;
+  color:#ffc7c7;
+}
+.status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green);
+  display:inline-block;
+  box-shadow:0 0 8px var(--green);
+}
+.status-pill.offline .status-dot{
+  background:var(--danger);
+  box-shadow:0 0 8px var(--danger);
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:16px;
+  padding:16px;
+}
+
+.sidebar{
+  background:linear-gradient(180deg,#0f1216,#0d0f12);
+  border:1px solid #22242a;
+  border-radius:12px;
+  padding:12px;
+  position:sticky;
+  top:74px;
+  height:max-content;
+}
+
+.kpi{
+  background:var(--panel);
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+  border:1px solid #23252a;
+}
+.kpi h4{margin:0 0 6px;color:var(--muted);font-size:12px}
+.kpi .value{font-size:20px;color:var(--green);font-weight:700}
+
+.content{
+  background:linear-gradient(180deg,#0f1115,#0d0f12);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  min-height:72vh;
+}
+
+.section{display:none}
+.section.active{display:block}
+
+.card{
+  background:var(--panel);
+  border-radius:12px;
+  padding:12px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  margin-bottom:12px;
+}
+
+.muted{color:var(--muted);font-size:13px}
+.small{font-size:13px}
+
+.progress{
+  height:10px;
+  background:#12161b;
+  border-radius:999px;
+  overflow:hidden;
+}
+.progress>span{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,var(--green),var(--accent));
+}
+
+.bin-card{
+  background:var(--panel);
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  cursor:pointer;
+}
+
+.bin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#0e1612;
+  border:1px solid #123224;
+  color:#9fe6b6;
+  font-size:13px;
+  display:inline-block;
+}
+.badge.warn{background:#1a1206;color:var(--warn);border-color:#3a2a12}
+.badge.danger{background:#120808;color:#ffb4b4;border-color:#3a1212}
+.badge.info{background:#09121a;color:#a3d6f4;border-color:#133146}
+
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{
+  padding:8px;
+  border-bottom:1px solid #22262b;
+  text-align:left;
+  color:#cbd6e6;
+}
+
+.top-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+
+.dashboard-summary{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-top:12px;
+}
+
+.summary-box{
+  background:#0b0f12;
+  border:1px solid #22242a;
+  border-radius:10px;
+  padding:10px;
+}
+
+.sensor-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:12px;
+}
+
+.status-list{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.status-item{
+  background:#0b0d10;
+  border:1px solid #22242a;
+  border-radius:8px;
+  padding:14px;
+}
+
+.status-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:8px 0;
+  border-bottom:1px solid #1a1d24;
+}
+.status-row:last-child{border-bottom:none}
+
+.console{
+  font-family:"Courier New",monospace;
+  font-size:12px;
+  color:var(--accent);
+  background:#050608;
+  padding:12px;
+  border-radius:6px;
+  min-height:220px;
+  max-height:220px;
+  overflow-y:auto;
+  border:1px solid #1a1d24;
+}
+.console-line{margin-bottom:6px}
+
+#campusMap{
+  width:100%;
+  height:450px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-top:10px;
+}
+.leaflet-container{background:#0b0f12}
+
+.map-legend{
+  background:rgba(10,12,15,.9);
+  padding:10px;
+  border-radius:8px;
+  color:#cfeee1;
+  font-size:13px;
+  border:1px solid var(--border);
+  margin-top:10px;
+}
+
+.bin-map-popup button{
+  background:linear-gradient(90deg,#22c55e,#22d3ee);
+  color:#000;
+  font-weight:700;
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  margin-top:8px;
+  width:100%;
+}
+
+.impact-tabs{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.impact-tab{
+  padding:8px 12px;
+  border-radius:8px;
+  background:#0e1114;
+  border:1px solid #22242a;
+  cursor:pointer;
+  color:var(--muted);
+}
+.impact-tab.active{
+  background:linear-gradient(180deg,#111419,#0f1316);
+  color:var(--text);
+  border-color:#2a3138;
+}
+
+.totals-grid{
+  margin-top:8px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.footer{
+  padding:12px;
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+  margin-top:12px;
+}
+
+.search{
+  padding:8px;
+  border-radius:8px;
+  background:#0d1114;
+  border:1px solid #22242a;
+  color:#fff;
+  width:220px;
+}
+
+.empty-state{
+  padding:20px;
+  border:1px dashed #34404c;
+  border-radius:12px;
+  color:var(--muted);
+  text-align:center;
+}
+
+.modal-backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:9998;
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:#0f1115;
+  padding:20px;
+  border-radius:12px;
+  border:1px solid #333;
+  z-index:9999;
+  width:min(340px,calc(100vw - 32px));
+  box-shadow:0 8px 24px rgba(0,0,0,.6);
+}
+
+.modal select{
+  width:100%;
+  padding:8px;
+  border-radius:8px;
+  margin-top:6px;
+  background:#0d1114;
+  color:#fff;
+  border:1px solid #444;
+}
+
+.toast{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  background:rgba(0,0,0,.85);
+  padding:10px 14px;
+  border-radius:8px;
+  color:#fff;
+  z-index:999999;
+  opacity:1;
+  transition:opacity .4s;
+}
+
+@media (max-width: 980px){
+  header{align-items:flex-start}
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:static}
+  .bin-grid,
+  .dashboard-summary,
+  .sensor-grid,
+  .status-list,
+  .totals-grid{grid-template-columns:1fr}
+}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>Smart Segregation <span style="font-weight:400;color:var(--muted);font-size:14px;">| SNU Campus</span></h1>
+  </div>
+  <div class="header-right">
+    <span class="status-pill" id="connectionPill"><span class="status-dot"></span><span id="connectionText">Connecting...</span></span>
+    <button class="btn" id="refreshDataBtn" type="button">Refresh Data</button>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-target="home">Home</button>
+      <button class="tab" data-target="dashboard">Dashboard</button>
+      <button class="tab" data-target="location">Location</button>
+      <button class="tab" data-target="health">Health</button>
+      <button class="tab" data-target="impact">Impact</button>
+      <button class="tab" data-target="alertsBoard">Alerts</button>
+    </nav>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <div class="kpi">
+      <h4>Total Tracked Material (kg est.)</h4>
+      <div class="value" id="kpiKg">0.0</div>
+    </div>
+    <div class="kpi">
+      <h4>CO2 Avoided (kg est.)</h4>
+      <div class="value" id="kpiCO2">0.0</div>
+    </div>
+    <div class="kpi">
+      <h4>Paper Sheets Saved</h4>
+      <div class="value" id="kpiSheets">0</div>
+    </div>
+    <div class="kpi">
+      <h4>Active Alerts</h4>
+      <div class="value" id="kpiAlerts">0</div>
+    </div>
+    <div class="kpi">
+      <h4>Total Throw Events</h4>
+      <div class="value" id="kpiThrows">0</div>
+    </div>
+  </aside>
+
+  <section class="content">
+    <div id="home" class="section active">
+      <div class="top-actions">
+        <div class="small muted">Live campus overview from backend telemetry</div>
+        <input class="search" id="search" placeholder="Search bin..." type="search"/>
+      </div>
+      <div class="bin-grid" id="homeCards"></div>
+    </div>
+
+    <div id="dashboard" class="section">
+      <div class="top-actions">
+        <div class="small muted">Selected bin telemetry and issue reporting</div>
+        <button class="btn danger-btn" id="reportIssueBtn" type="button">Report Issue</button>
+      </div>
+
+      <div class="card">
+        <h3 id="binTitle">Waiting for bin data...</h3>
+        <div class="dashboard-summary">
+          <div class="summary-box">
+            <div class="muted">Overall Fill</div>
+            <strong id="overallFill">0%</strong>
+          </div>
+          <div class="summary-box">
+            <div class="muted">Current Status</div>
+            <strong id="overallStatus">Unknown</strong>
+          </div>
+          <div class="summary-box">
+            <div class="muted">Throw Events</div>
+            <strong id="openThrows">0</strong>
+          </div>
+          <div class="summary-box">
+            <div class="muted">Last Telemetry</div>
+            <strong id="lastUpdated">No data</strong>
+          </div>
+        </div>
+
+        <div class="sensor-grid">
+          <div>
+            <div class="muted">Paper</div>
+            <div class="progress"><span id="paperBar" style="width:0%"></span></div>
+            <div class="small muted" id="paperMeta">0% / -- cm</div>
+          </div>
+          <div>
+            <div class="muted">Plastic</div>
+            <div class="progress"><span id="plasticBar" style="width:0%"></span></div>
+            <div class="small muted" id="plasticMeta">0% / -- cm</div>
+          </div>
+          <div>
+            <div class="muted">Metal</div>
+            <div class="progress"><span id="metalBar" style="width:0%"></span></div>
+            <div class="small muted" id="metalMeta">0% / -- cm</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>Bin status</h4>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="flex:2;min-width:280px;">
+            <div class="card" style="padding:10px;background:#0b0f12;border:1px solid #22242a;">
+              <div class="muted">Active alerts</div>
+              <div id="binAlerts" style="margin-top:6px;"></div>
+            </div>
+            <div style="margin-top:12px;background:#0b0f12;border:1px solid #22242a;padding:12px;border-radius:12px;">
+              <div class="muted">Activity log</div>
+              <table class="table" style="margin-top:8px;">
+                <thead>
+                  <tr><th>Time</th><th>Type</th><th>Details</th></tr>
+                </thead>
+                <tbody id="activity"></tbody>
+              </table>
+            </div>
+          </div>
+          <div style="flex:1;min-width:240px;">
+            <div class="summary-box">
+              <div class="muted">Telemetry notes</div>
+              <div class="small muted" style="margin-top:8px;line-height:1.5;" id="telemetryNotes">
+                The dashboard is waiting for telemetry from the backend.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="location" class="section">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+          <h3 style="margin:0;">Campus Map - Shiv Nadar University</h3>
+          <span class="small muted">Live bin status markers</span>
+        </div>
+        <div id="campusMap"></div>
+        <div class="map-legend">
+          <strong>Status Indicators:</strong><br/>
+          <span style="color:#22c55e">&#9679;</span> <strong>Green:</strong> Healthy<br/>
+          <span style="color:#fbbf24">&#9679;</span> <strong>Yellow:</strong> Warning / Near Full<br/>
+          <span style="color:#ef4444">&#9679;</span> <strong>Red:</strong> Critical / Issue Detected<br/>
+          <em class="small muted" style="display:block;margin-top:4px;">Click a marker to open the selected bin dashboard.</em>
+        </div>
+      </div>
+    </div>
+
+    <div id="health" class="section">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px;flex-wrap:wrap;">
+          <h3 style="margin:0;">System Health</h3>
+          <span class="badge info" id="healthSummary">Waiting for backend</span>
+        </div>
+
+        <div class="status-list">
+          <div class="status-item">
+            <h4 class="muted">Telemetry freshness</h4>
+            <div id="healthStatusRows"></div>
+          </div>
+
+          <div class="status-item">
+            <h4 class="muted">Recent backend activity</h4>
+            <div class="console" id="ioConsole"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="impact" class="section">
+      <div class="card">
+        <h3>Impact Statistics</h3>
+        <table class="table">
+          <thead>
+            <tr><th>Location</th><th>Fill %</th><th>Mass (kg)</th><th>Sheet Eq.</th></tr>
+          </thead>
+          <tbody id="sheetsTable"></tbody>
+        </table>
+
+        <div class="impact-tabs" id="impactTabs">
+          <button class="impact-tab active" data-sub="overview" type="button">Overview</button>
+          <button class="impact-tab" data-sub="sdg" type="button">SDG Alignment</button>
+        </div>
+
+        <div id="impact-overview" style="margin-top:12px;" class="card">
+          <h4>Campus Overview</h4>
+          <div class="small muted">Computed from current ultrasonic fill levels and configured capacity estimates.</div>
+          <div class="totals-grid">
+            <div style="background:#0e1216;padding:10px;border-radius:8px;">
+              <div class="muted">Paper</div>
+              <strong style="color:var(--green);font-size:18px;" id="matPaperTotals">0 kg</strong>
+            </div>
+            <div style="background:#0e1216;padding:10px;border-radius:8px;">
+              <div class="muted">Plastic</div>
+              <strong style="color:#22d3ee;font-size:18px;" id="matPlasticTotals">0 kg</strong>
+            </div>
+            <div style="background:#0e1216;padding:10px;border-radius:8px;">
+              <div class="muted">Metal</div>
+              <strong style="color:#fbbf24;font-size:18px;" id="matMetalTotals">0 kg</strong>
+            </div>
+          </div>
+        </div>
+
+        <div id="impact-sdg" style="margin-top:12px;display:none;" class="card">
+          <h4>SDG Alignment</h4>
+          <ul class="small muted">
+            <li><strong>SDG 11.6:</strong> Reduce adverse environmental impact with timely waste tracking.</li>
+            <li><strong>SDG 12.5:</strong> Improve recycling and diversion through data-backed segregation.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="alertsBoard" class="section">
+      <div class="top-actions">
+        <div class="small muted">Active system and manual alerts</div>
+        <button class="btn" id="refreshAlertsBtn" type="button">Refresh Alerts</button>
+      </div>
+      <div class="card">
+        <table class="table">
+          <thead>
+            <tr><th>Level</th><th>Location</th><th>Message</th><th>Time</th><th>Link</th></tr>
+          </thead>
+          <tbody id="alertsTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="footer">&copy; Smart Segregation &#8226; Shiv Nadar University Project</div>
+
+<div class="modal-backdrop" id="modalBackdrop"></div>
+<div class="modal" id="reportPopup">
+  <h3 style="margin-top:0;font-size:16px;">Report an Issue</h3>
+  <label class="muted" style="font-size:13px;" for="issueType">Select Issue:</label>
+  <select id="issueType">
+    <option value="Blocked chute">Blocked chute</option>
+    <option value="Sensor not working">Sensor not working</option>
+    <option value="Bad smell">Bad smell</option>
+    <option value="Bin overflow">Bin overflow</option>
+    <option value="Mechanical fault">Mechanical fault</option>
+  </select>
+  <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
+    <button class="btn" id="submitIssueBtn" type="button">Submit</button>
+    <button class="btn danger-btn" id="cancelIssueBtn" type="button">Cancel</button>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.protocol === "file:" ? "http://localhost:8080" : "";
+const POLL_INTERVAL_MS = 15000;
+
+let dashboardData = {
+  generatedAt: null,
+  summary: {
+    totalTrackedKg: 0,
+    co2AvoidedKg: 0,
+    paperSheetsSaved: 0,
+    activeAlerts: 0,
+    totalThrowEvents: 0
+  },
+  materialTotals: {
+    paperKg: 0,
+    plasticKg: 0,
+    metalKg: 0
+  },
+  bins: [],
+  alerts: [],
+  impact: []
+};
+
+let currentBinId = null;
+let activeTab = "home";
+let activeImpactTab = "overview";
+let map = null;
+let markers = null;
+
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function badge(level, text) {
+  const tone = level === "danger" ? "danger" : level === "warn" ? "warn" : "info";
+  return `<span class="badge ${tone}">${escapeHtml(text)}</span>`;
+}
+
+function apiUrl(path) {
+  return `${API_BASE}${path}`;
+}
+
+function formatTime(value) {
+  if (!value) {
+    return "No data";
+  }
+  return new Date(value).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  });
+}
+
+function relativeTime(value) {
+  if (!value) {
+    return "never";
+  }
+
+  const diffMs = Date.now() - new Date(value).getTime();
+  const diffSeconds = Math.max(0, Math.floor(diffMs / 1000));
+  if (diffSeconds < 60) {
+    return `${diffSeconds}s ago`;
+  }
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  if (diffMinutes < 60) {
+    return `${diffMinutes}m ago`;
+  }
+  const diffHours = Math.floor(diffMinutes / 60);
+  return `${diffHours}h ago`;
+}
+
+function getCurrentBin() {
+  if (!dashboardData.bins.length) {
+    return null;
+  }
+  return dashboardData.bins.find((bin) => bin.id === currentBinId) || dashboardData.bins[0];
+}
+
+function setConnectionState(isOnline, generatedAt, message) {
+  const pill = $("#connectionPill");
+  const text = $("#connectionText");
+  pill.classList.toggle("offline", !isOnline);
+  text.textContent = isOnline
+    ? `Backend connected${generatedAt ? ` • ${relativeTime(generatedAt)}` : ""}`
+    : (message || "Backend unavailable");
+}
+
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 400);
+  }, 2200);
+}
+
+async function fetchDashboard(showToastOnError = false) {
+  try {
+    const response = await fetch(apiUrl("/api/dashboard"), {
+      headers: { "Accept": "application/json" }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Dashboard request failed with ${response.status}`);
+    }
+
+    dashboardData = await response.json();
+    if (!currentBinId || !dashboardData.bins.some((bin) => bin.id === currentBinId)) {
+      currentBinId = dashboardData.bins[0] ? dashboardData.bins[0].id : null;
+    }
+
+    renderAll();
+    setConnectionState(true, dashboardData.generatedAt);
+  } catch (error) {
+    setConnectionState(false, null, "Backend unavailable");
+    if (showToastOnError) {
+      showToast(error.message);
+    }
+  }
+}
+
+function renderKpis() {
+  $("#kpiKg").textContent = Number(dashboardData.summary.totalTrackedKg || 0).toFixed(1);
+  $("#kpiCO2").textContent = Number(dashboardData.summary.co2AvoidedKg || 0).toFixed(1);
+  $("#kpiSheets").textContent = String(dashboardData.summary.paperSheetsSaved || 0);
+  $("#kpiAlerts").textContent = String(dashboardData.summary.activeAlerts || 0);
+  $("#kpiThrows").textContent = String(dashboardData.summary.totalThrowEvents || 0);
+}
+
+function renderHome() {
+  const wrap = $("#homeCards");
+  const query = ($("#search").value || "").trim().toLowerCase();
+  wrap.innerHTML = "";
+
+  const bins = dashboardData.bins.filter((bin) => {
+    return `${bin.name} ${bin.site}`.toLowerCase().includes(query);
+  });
+
+  if (!bins.length) {
+    wrap.innerHTML = '<div class="empty-state">No bins matched your search.</div>';
+    return;
+  }
+
+  bins.forEach((bin) => {
+    const card = document.createElement("div");
+    card.className = "bin-card";
+    card.innerHTML = `
+      <strong>${escapeHtml(bin.name)}</strong>
+      <div class="muted">${escapeHtml(bin.site)}</div>
+      <div style="margin-top:8px;">
+        <div class="muted">Overall Fill</div>
+        <div class="progress">
+          <span style="width:${bin.overallFill || 0}%;background:${statusColor(bin.status)};"></span>
+        </div>
+      </div>
+      <div style="margin-top:8px;" class="small muted">Throw events: ${bin.throwEvents || 0}</div>
+      <div style="margin-top:8px;">
+        ${bin.alerts.length ? bin.alerts.map((alert) => badge(alert.level, alert.text)).join(" ") : badge("info", "No active alerts")}
+      </div>
+    `;
+    card.addEventListener("click", () => {
+      selectBin(bin.id);
+      setTab("dashboard");
+    });
+    wrap.appendChild(card);
+  });
+}
+
+function selectBin(binId) {
+  currentBinId = binId;
+  renderDashboard();
+}
+
+function statusColor(status) {
+  if (status === "Critical") {
+    return "#ef4444";
+  }
+  if (status === "Warning") {
+    return "#fbbf24";
+  }
+  return "#22c55e";
+}
+
+function renderDashboard() {
+  const bin = getCurrentBin();
+  if (!bin) {
+    $("#binTitle").textContent = "Waiting for bin data...";
+    $("#overallFill").textContent = "0%";
+    $("#overallStatus").textContent = "Unknown";
+    $("#openThrows").textContent = "0";
+    $("#lastUpdated").textContent = "No data";
+    ["paper", "plastic", "metal"].forEach((materialKey) => {
+      document.getElementById(`${materialKey}Bar`).style.width = "0%";
+      document.getElementById(`${materialKey}Meta`).textContent = "0% / -- cm";
+    });
+    $("#binAlerts").innerHTML = '<span class="small muted">No bin data available yet.</span>';
+    $("#activity").innerHTML = '<tr><td colspan="3" class="muted">No recent activity</td></tr>';
+    $("#telemetryNotes").textContent = "The dashboard is waiting for telemetry from the backend.";
+    return;
+  }
+
+  $("#binTitle").textContent = `${bin.name} (${bin.site})`;
+  $("#overallFill").textContent = `${bin.overallFill || 0}%`;
+  $("#overallStatus").textContent = bin.status || "Unknown";
+  $("#overallStatus").style.color = statusColor(bin.status);
+  $("#openThrows").textContent = String(bin.throwEvents || 0);
+  $("#lastUpdated").textContent = formatTime(bin.lastTelemetryAt);
+
+  renderSensorBar("paper", bin);
+  renderSensorBar("plastic", bin);
+  renderSensorBar("metal", bin);
+
+  $("#binAlerts").innerHTML = bin.alerts.length
+    ? bin.alerts.map((alert) => badge(alert.level, alert.text)).join(" ")
+    : '<span class="small muted" style="color:var(--green);">No active alerts for this bin.</span>';
+
+  $("#activity").innerHTML = bin.activity.length
+    ? bin.activity.map((entry) => `
+        <tr>
+          <td>${escapeHtml(formatTime(entry.time))}</td>
+          <td>${escapeHtml(entry.type)}</td>
+          <td>${escapeHtml(entry.details)}</td>
+        </tr>
+      `).join("")
+    : '<tr><td colspan="3" class="muted">No recent activity</td></tr>';
+
+  const telemetryBits = [
+    `Last telemetry: ${relativeTime(bin.lastTelemetryAt)}`,
+    `Last throw: ${bin.lastThrowAt ? relativeTime(bin.lastThrowAt) : "none yet"}`,
+    `Status: ${bin.status}`
+  ];
+  $("#telemetryNotes").textContent = telemetryBits.join(" | ");
+}
+
+function renderSensorBar(materialKey, bin) {
+  const bar = document.getElementById(`${materialKey}Bar`);
+  const meta = document.getElementById(`${materialKey}Meta`);
+  const fill = bin.fills[materialKey] || 0;
+  const distance = bin.distancesCm[materialKey];
+
+  bar.style.width = `${fill}%`;
+  bar.style.background = `linear-gradient(90deg, ${statusColor(bin.status)}, var(--accent))`;
+  meta.textContent = `${fill}% / ${distance == null ? "--" : `${Number(distance).toFixed(1)} cm`}`;
+}
+
+function renderHealth() {
+  $("#healthSummary").textContent = dashboardData.generatedAt
+    ? `Last sync ${relativeTime(dashboardData.generatedAt)}`
+    : "Waiting for backend";
+
+  const rows = dashboardData.bins.map((bin) => {
+    const freshness = telemetrySeverity(bin.lastTelemetryAt);
+    return `
+      <div class="status-row">
+        <span>${escapeHtml(bin.name)}</span>
+        <span style="color:${freshness.color};">${escapeHtml(freshness.label)} (${relativeTime(bin.lastTelemetryAt)})</span>
+      </div>
+    `;
+  }).join("");
+
+  $("#healthStatusRows").innerHTML = rows || '<div class="small muted">No bins configured yet.</div>';
+
+  const lines = [];
+  dashboardData.bins.forEach((bin) => {
+    (bin.activity || []).forEach((entry) => {
+      lines.push({
+        time: entry.time,
+        text: `[${bin.id.toUpperCase()}] ${entry.type}: ${entry.details}`
+      });
+    });
+  });
+
+  lines.sort((left, right) => new Date(right.time).getTime() - new Date(left.time).getTime());
+  const consoleEl = $("#ioConsole");
+  consoleEl.innerHTML = lines.length
+    ? lines.slice(0, 12).map((line) => `<div class="console-line">&gt; ${escapeHtml(formatTime(line.time))} - ${escapeHtml(line.text)}</div>`).join("")
+    : '<div class="console-line">&gt; Waiting for telemetry...</div>';
+}
+
+function telemetrySeverity(timestamp) {
+  if (!timestamp) {
+    return { label: "No telemetry", color: "#ef4444" };
+  }
+
+  const diffMs = Date.now() - new Date(timestamp).getTime();
+  if (diffMs > 30 * 60 * 1000) {
+    return { label: "Critical stale", color: "#ef4444" };
+  }
+  if (diffMs > 10 * 60 * 1000) {
+    return { label: "Warning stale", color: "#fbbf24" };
+  }
+  return { label: "Fresh", color: "#22c55e" };
+}
+
+function renderImpact() {
+  $("#sheetsTable").innerHTML = dashboardData.impact.length
+    ? dashboardData.impact.map((row) => `
+        <tr>
+          <td>${escapeHtml(row.name)}</td>
+          <td>${row.fillPercent}%</td>
+          <td>${Number(row.massKg || 0).toFixed(2)}</td>
+          <td>${row.sheetEquivalent || 0}</td>
+        </tr>
+      `).join("")
+    : '<tr><td colspan="4" class="muted">No impact data available yet.</td></tr>';
+
+  $("#matPaperTotals").textContent = `${Number(dashboardData.materialTotals.paperKg || 0).toFixed(1)} kg`;
+  $("#matPlasticTotals").textContent = `${Number(dashboardData.materialTotals.plasticKg || 0).toFixed(1)} kg`;
+  $("#matMetalTotals").textContent = `${Number(dashboardData.materialTotals.metalKg || 0).toFixed(1)} kg`;
+}
+
+function renderAlerts() {
+  $("#alertsTable").innerHTML = dashboardData.alerts.length
+    ? dashboardData.alerts.map((alert) => `
+        <tr>
+          <td>${badge(alert.level, alert.level.toUpperCase())}</td>
+          <td>${escapeHtml(alert.binName)}</td>
+          <td>${escapeHtml(alert.text)}</td>
+          <td>${escapeHtml(formatTime(alert.ts))}</td>
+          <td><button class="btn" type="button" onclick="window.goToBin('${escapeHtml(alert.binId)}')">View</button></td>
+        </tr>
+      `).join("")
+    : '<tr><td colspan="5" class="muted">No active alerts</td></tr>';
+}
+
+function renderAll() {
+  renderKpis();
+  renderHome();
+  renderDashboard();
+  renderHealth();
+  renderImpact();
+  renderAlerts();
+  updateMapMarkers();
+}
+
+function setTab(tabId) {
+  activeTab = tabId;
+  $$("#tabs .tab").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.target === tabId);
+  });
+  $$(".section").forEach((section) => {
+    section.classList.toggle("active", section.id === tabId);
+  });
+  if (tabId === "location") {
+    initMap();
+  }
+}
+
+function initMap() {
+  if (typeof L === "undefined") {
+    const mapEl = $("#campusMap");
+    mapEl.innerHTML = '<div class="empty-state" style="height:100%;display:flex;align-items:center;justify-content:center;">Map tiles are unavailable because Leaflet did not load.</div>';
+    return;
+  }
+
+  if (map) {
+    map.invalidateSize();
+    updateMapMarkers();
+    return;
+  }
+
+  map = L.map("campusMap", {
+    center: [28.5250, 77.5730],
+    zoom: 16,
+    zoomControl: false
+  });
+
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+    attribution: "Tiles &copy; Esri"
+  }).addTo(map);
+
+  markers = L.layerGroup().addTo(map);
+  updateMapMarkers();
+}
+
+function updateMapMarkers() {
+  if (!map || !markers) {
+    return;
+  }
+
+  markers.clearLayers();
+  dashboardData.bins.forEach((bin) => {
+    const color = statusColor(bin.status);
+    const marker = L.circleMarker(bin.latlng, {
+      radius: 12,
+      fillColor: color,
+      color: "#fff",
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.9
+    }).addTo(markers);
+
+    const popupContent = `
+      <div class="bin-map-popup" style="color:#222;">
+        <strong style="font-size:14px;">${escapeHtml(bin.name)}</strong><br/>
+        <span style="font-size:11px;color:#555;">${escapeHtml(bin.site)}</span><br/>
+        <div style="margin-top:5px;font-weight:bold;color:${color};">&#9679; ${escapeHtml(bin.status || "Unknown")}</div>
+        <button type="button" onclick="window.goToBin('${escapeHtml(bin.id)}')">Open Dashboard</button>
+      </div>
+    `;
+
+    marker.bindPopup(popupContent);
+  });
+}
+
+window.goToBin = function(binId) {
+  selectBin(binId);
+  setTab("dashboard");
+};
+
+function openReportPopup() {
+  if (!getCurrentBin()) {
+    showToast("No bin selected yet.");
+    return;
+  }
+  $("#modalBackdrop").style.display = "block";
+  $("#reportPopup").style.display = "block";
+}
+
+function closeReportPopup() {
+  $("#modalBackdrop").style.display = "none";
+  $("#reportPopup").style.display = "none";
+}
+
+async function submitIssueReport() {
+  const bin = getCurrentBin();
+  if (!bin) {
+    showToast("No bin selected.");
+    return;
+  }
+
+  const payload = {
+    text: $("#issueType").value,
+    level: "danger"
+  };
+
+  try {
+    const response = await fetch(apiUrl(`/api/bins/${encodeURIComponent(bin.id)}/report-issue`), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Issue report failed with ${response.status}`);
+    }
+
+    closeReportPopup();
+    showToast("Issue reported successfully.");
+    await fetchDashboard(false);
+  } catch (error) {
+    showToast(error.message);
+  }
+}
+
+function bindEvents() {
+  $$("#tabs .tab").forEach((tab) => {
+    tab.addEventListener("click", () => setTab(tab.dataset.target));
+  });
+
+  $("#search").addEventListener("input", renderHome);
+  $("#refreshDataBtn").addEventListener("click", () => fetchDashboard(true));
+  $("#refreshAlertsBtn").addEventListener("click", () => fetchDashboard(true));
+  $("#reportIssueBtn").addEventListener("click", openReportPopup);
+  $("#submitIssueBtn").addEventListener("click", submitIssueReport);
+  $("#cancelIssueBtn").addEventListener("click", closeReportPopup);
+  $("#modalBackdrop").addEventListener("click", closeReportPopup);
+
+  $$("#impactTabs .impact-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      activeImpactTab = tab.dataset.sub;
+      $$("#impactTabs .impact-tab").forEach((item) => {
+        item.classList.toggle("active", item === tab);
+      });
+      $("#impact-overview").style.display = activeImpactTab === "overview" ? "block" : "none";
+      $("#impact-sdg").style.display = activeImpactTab === "sdg" ? "block" : "none";
+    });
+  });
+}
+
+bindEvents();
+fetchDashboard(false);
+setInterval(() => fetchDashboard(false), POLL_INTERVAL_MS);
+</script>
+</body>
+</html>

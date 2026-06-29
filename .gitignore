@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Logs & runtime
+*.log
+npm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+~$*
+
+# Office temp / recovery files
+*(AutoRecovered)*
+*.tmp
+
+# Archives / build snapshots (kept out of source control)
+*.zip
+
+# Academic / personal documents (not part of the codebase)
+*.docx
+
+# Arduino build output
+build/
+*.hex
+*.bin.elf

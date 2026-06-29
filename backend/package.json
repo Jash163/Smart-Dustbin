@@ -1,0 +1,11 @@
+{
+  "name": "smart-segregation-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone backend for ingesting ultrasonic and IR telemetry and serving dashboard analytics.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node --check src/server.js"
+  }
+}
